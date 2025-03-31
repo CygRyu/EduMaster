@@ -1866,7 +1866,7 @@ const subjects = [
 
         return {
             id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
-            name: `Student ${gameState.availableStudents.length + gameState.completedSessions.length + 1}`,
+            name: generateRandomName(),
             nickname: "",
             school: `${location.name} High`,
             subject: {
