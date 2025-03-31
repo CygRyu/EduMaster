@@ -2041,12 +2041,14 @@ function moveStudentToActive(studentId, teacherId) {
         status: 'in-progress'
     };
 
-    // Update teacher state
+    // Update teacher state with increased fatigue
+    const baseFatiguePerHour = 15; // Increased fatigue per hour as proposed
+    const fatigueIncrease = baseFatiguePerHour * student.hours; // Scale with academic hours
+    
     teacher.active = true;
     teacher.available = false;
     teacher.currentSession = activeSession.id;
-    teacher.fatigue += Math.ceil(durationHours / 2);
-    teacher.fatigue = Math.min(teacher.fatigue, 100);
+    teacher.fatigue = Math.min(100, teacher.fatigue + fatigueIncrease); // Cap at 100
     teacher.lastFatigueUpdate = new Date();
     teacher.lastSessionDate = new Date();
 
@@ -2074,183 +2076,214 @@ function moveStudentToActive(studentId, teacherId) {
 
         // Enhanced with student ratings and retention
         function completeSession(sessionId, force = false) {
-            const sessionIndex = gameState.activeSessions.findIndex(session => session.id === sessionId);
-            
-            if (sessionIndex === -1) return null;
-            
-            const session = gameState.activeSessions[sessionIndex];
-            const teacher = gameState.teachers.find(teacher => teacher.id === session.teacher);
-            
-            if (!teacher) return null;
-            
-            // Mark as completed
-            session.status = 'completed';
-            session.completedAt = new Date();
-            
-            // Check if on time or late
-            const isOnTime = session.completedAt <= session.student.deadline;
-            
-            // Calculate payment - base rate plus commission
-            const tuition = session.student.tuition;
-            const baseHourlyRate = 30; // Base hourly rate for teachers
-            const hours = session.student.hours;
-            
-            // Teacher gets base hourly rate plus 30% commission on the tuition
-            const teacherPayment = (baseHourlyRate * hours) + (tuition * 0.3);
-            // Company keeps the rest
-            const companyPayment = tuition - teacherPayment;
-            
-            // Update company financials
-            gameState.company.totalRevenue += tuition;
-            gameState.company.teacherPayments += teacherPayment;
-            gameState.company.netProfit += companyPayment;
-            gameState.company.capital += companyPayment;
-            gameState.company.sessionsCompleted++;
-            
-            // Update weekly tracking
-            gameState.company.weeklyStats.revenue += companyPayment;
-            gameState.company.weeklyStats.profit = gameState.company.weeklyStats.revenue - gameState.company.weeklyStats.expenses;
-            
-            // Update daily and historical earnings
-            gameState.stats.dailyEarnings += companyPayment;
-            
-            const today = new Date().getDay();
-            gameState.stats.weeklyEarnings[today] += companyPayment;
-            
-            const dayOfMonth = new Date().getDate() - 1;
-            gameState.stats.monthlyEarnings[dayOfMonth] += companyPayment;
-            
-            // Update teacher stats
-            teacher.active = false;
-            teacher.currentSession = null;
-            teacher.sessionsCompleted++;
-            
-            // Apply session loyalty reward (every 5 sessions)
-            if (teacher.sessionsCompleted % 5 === 0) {
-                const loyaltyBoost = 5;
-                teacher.loyalty = Math.min(100, teacher.loyalty + loyaltyBoost);
-                addNotification(`${teacher.name} received a ${loyaltyBoost}% loyalty boost for completing ${teacher.sessionsCompleted} sessions!`, "success");
-            }
-            
-            // Adjust teacher loyalty based on session outcome and subject match
-            const subjectMatchBonus = session.subjectMatchScore > 0 ? 1 : -1;
-            
-            if (isOnTime) {
-                teacher.loyalty += 2 + subjectMatchBonus;
-            } else {
-                teacher.loyalty -= 3 - subjectMatchBonus;
-            }
-            teacher.loyalty = Math.max(0, Math.min(teacher.loyalty, 100));
-            
-            // Update teacher risk/disengaged status based on loyalty
-            teacher.risk = teacher.loyalty < 30;
-            teacher.disengaged = teacher.loyalty < 50;
-            
-            // Generate student rating
-            let rating = 0;
-            if (session.performanceScore >= 90) {
-                rating = getRandomInt(4, 5); // Excellent: 4-5 stars
-            } else if (session.performanceScore >= 75) {
-                rating = getRandomInt(3, 4); // Good: 3-4 stars
-            } else if (session.performanceScore >= 60) {
-                rating = getRandomInt(2, 3); // Average: 2-3 stars
-            } else {
-                rating = getRandomInt(1, 2); // Poor: 1-2 stars
-            }
-            
-            // Add student review
-            const studentName = session.student.nickname || session.student.name;
-            const review = {
-                id: Date.now(),
-                studentName,
-                teacherName: teacher.name,
-                subject: session.student.subject.name,
-                rating,
-                date: new Date(),
-                comment: generateReviewComment(rating, session.student.subject.name)
-            };
-            
-            gameState.studentReviews.unshift(review);
-            if (gameState.studentReviews.length > 20) {
-                gameState.studentReviews.pop(); // Keep only last 20 reviews
-            }
-            
-            // Determine if student will return
-            const returnChance = calculateReturnChance(rating, session.student.visits);
-            const willReturn = Math.random() < returnChance;
-            
-            // Add student to returning list if they will return
-            if (willReturn) {
-                gameState.returningStudents.push({
-                    name: session.student.name,
-                    nickname: session.student.nickname,
-                    school: session.student.school,
-                    visits: (session.student.visits || 0) + 1,
-                    rating
-                });
-            }
-            
-            // Update on-time rate
-            const totalCompletedSessions = gameState.completedSessions.length + 1;
-            const onTimeSessions = gameState.completedSessions.filter(session => session.isOnTime).length + (isOnTime ? 1 : 0);
-            gameState.stats.onTimeRate = Math.round((onTimeSessions / totalCompletedSessions) * 100);
-            
-            // Add to completed sessions
-            gameState.completedSessions.push({
-                ...session,
-                isOnTime,
-                teacherPayment,
-                companyPayment,
-                rating,
-                returnedForMore: willReturn
-            });
-            
-            // Remove from active sessions
-            gameState.activeSessions.splice(sessionIndex, 1);
-            
-            // Update stats
-            gameState.stats.totalHours += session.student.hours;
-            
-            // Add notification based on rating
-            let ratingText = "";
-            if (rating >= 4) {
-                ratingText = `They gave a ${rating}-star review!`;
-            } else if (rating >= 3) {
-                ratingText = `They gave a ${rating}-star review.`;
-            } else {
-                ratingText = `Warning: They gave only a ${rating}-star review.`;
-            }
-            
-            if (isOnTime) {
-                addNotification(`${teacher.name} completed tutoring ${studentName} in ${session.student.subject.name} on time! Earned $${formatCurrency(companyPayment)}. ${ratingText}`, rating >= 4 ? "success" : (rating <= 2 ? "warning" : "info"));
-            } else {
-                addNotification(`${teacher.name} completed tutoring ${studentName} in ${session.student.subject.name} late. Earned $${formatCurrency(companyPayment)}. ${ratingText}`, "warning");
-            }
-            
-            // Update company reputation
-            updateCompanyReputation();
-            
-            // Update UI
-            updateCompanyInfo();
-            updateActiveSessionsCount();
-            updateDashboardStats();
-            renderActiveSessionsList();
-            renderTeachersList();
-            renderStudentReviews();
-            
-            // If we were in an active marketing campaign, track the revenue
-            if (gameState.marketing.activeCampaign) {
-                gameState.marketing.totalRevenue += companyPayment;
-            }
-            
-            return {
-                session,
-                isOnTime,
-                teacherPayment,
-                companyPayment,
-                rating
-            };
-        }
+    const sessionIndex = gameState.activeSessions.findIndex(session => session.id === sessionId);
+    
+    if (sessionIndex === -1) return null;
+    
+    const session = gameState.activeSessions[sessionIndex];
+    const teacher = gameState.teachers.find(teacher => teacher.id === session.teacher);
+    
+    if (!teacher) return null;
+    
+    // Mark as completed
+    session.status = 'completed';
+    session.completedAt = new Date();
+    
+    // Check if on time or late
+    const isOnTime = session.completedAt <= session.student.deadline;
+    
+    // Calculate base payment - base rate plus commission
+    const tuition = session.student.tuition;
+    const baseHourlyRate = 30; // Base hourly rate for teachers
+    const hours = session.student.hours;
+    
+    // Teacher gets base hourly rate plus 30% commission on the tuition
+    let teacherPayment = (baseHourlyRate * hours) + (tuition * 0.3);
+    // Company keeps the rest
+    let companyPayment = tuition - teacherPayment;
+    
+    // Apply fatigue penalties
+    let fatiguePenaltyMessage = "";
+    if (teacher.fatigue > 70) {
+        companyPayment *= 0.8; // 20% earnings reduction for high fatigue
+        teacherPayment *= 0.8; // Apply to teacher payment too for consistency
+        gameState.company.reputation = Math.max(0, gameState.company.reputation - 0.1); // Reputation penalty
+        fatiguePenaltyMessage = `${teacher.name} was exhausted, reducing session quality and earnings by 20%.`;
+        addNotification(fatiguePenaltyMessage, "warning");
+    } else if (teacher.fatigue > 50) {
+        companyPayment *= 0.9; // 10% earnings reduction for moderate fatigue
+        teacherPayment *= 0.9; // Apply to teacher payment too
+        fatiguePenaltyMessage = `${teacher.name} was tired, reducing earnings by 10%.`;
+        addNotification(fatiguePenaltyMessage, "warning");
+    }
+    
+    // Apply late penalty (after fatigue to stack penalties)
+    if (!isOnTime) {
+        companyPayment *= 0.75;
+        teacherPayment *= 0.75;
+    }
+    
+    // Update company financials
+    gameState.company.totalRevenue += tuition; // Total revenue reflects full tuition before penalties
+    gameState.company.teacherPayments += teacherPayment;
+    gameState.company.netProfit += companyPayment;
+    gameState.company.capital += companyPayment;
+    gameState.company.sessionsCompleted++;
+    
+    // Update weekly tracking
+    gameState.company.weeklyStats.revenue += companyPayment;
+    gameState.company.weeklyStats.profit = gameState.company.weeklyStats.revenue - gameState.company.weeklyStats.expenses;
+    
+    // Update daily and historical earnings
+    gameState.stats.dailyEarnings += companyPayment;
+    
+    const today = new Date().getDay();
+    gameState.stats.weeklyEarnings[today] += companyPayment;
+    
+    const dayOfMonth = new Date().getDate() - 1;
+    gameState.stats.monthlyEarnings[dayOfMonth] += companyPayment;
+    
+    // Update teacher stats
+    teacher.active = false;
+    teacher.currentSession = null;
+    teacher.sessionsCompleted++;
+    
+    // Apply session loyalty reward (every 5 sessions)
+    if (teacher.sessionsCompleted % 5 === 0) {
+        const loyaltyBoost = 5;
+        teacher.loyalty = Math.min(100, teacher.loyalty + loyaltyBoost);
+        addNotification(`${teacher.name} received a ${loyaltyBoost}% loyalty boost for completing ${teacher.sessionsCompleted} sessions!`, "success");
+    }
+    
+    // Adjust teacher loyalty based on session outcome and subject match
+    const subjectMatchBonus = session.subjectMatchScore > 0 ? 1 : -1;
+    
+    if (isOnTime) {
+        teacher.loyalty += 2 + subjectMatchBonus;
+    } else {
+        teacher.loyalty -= 3 - subjectMatchBonus;
+    }
+    teacher.loyalty = Math.max(0, Math.min(teacher.loyalty, 100));
+    
+    // Update teacher risk/disengaged status based on loyalty
+    teacher.risk = teacher.loyalty < 30;
+    teacher.disengaged = teacher.loyalty < 50;
+    
+    // Generate student rating
+    let rating = 0;
+    if (session.performanceScore >= 90) {
+        rating = getRandomInt(4, 5); // Excellent: 4-5 stars
+    } else if (session.performanceScore >= 75) {
+        rating = getRandomInt(3, 4); // Good: 3-4 stars
+    } else if (session.performanceScore >= 60) {
+        rating = getRandomInt(2, 3); // Average: 2-3 stars
+    } else {
+        rating = getRandomInt(1, 2); // Poor: 1-2 stars
+    }
+    
+    // Adjust rating based on fatigue (optional enhancement)
+    if (teacher.fatigue > 70) {
+        rating = Math.max(1, rating - 1); // Reduce rating by 1 if exhausted
+    }
+    
+    // Add student review
+    const studentName = session.student.nickname || session.student.name;
+    const review = {
+        id: Date.now(),
+        studentName,
+        teacherName: teacher.name,
+        subject: session.student.subject.name,
+        rating,
+        date: new Date(),
+        comment: generateReviewComment(rating, session.student.subject.name)
+    };
+    
+    gameState.studentReviews.unshift(review);
+    if (gameState.studentReviews.length > 20) {
+        gameState.studentReviews.pop(); // Keep only last 20 reviews
+    }
+    
+    // Determine if student will return
+    const returnChance = calculateReturnChance(rating, session.student.visits);
+    const willReturn = Math.random() < returnChance;
+    
+    // Add student to returning list if they will return
+    if (willReturn) {
+        gameState.returningStudents.push({
+            name: session.student.name,
+            nickname: session.student.nickname,
+            school: session.student.school,
+            visits: (session.student.visits || 0) + 1,
+            rating
+        });
+    }
+    
+    // Update on-time rate
+    const totalCompletedSessions = gameState.completedSessions.length + 1;
+    const onTimeSessions = gameState.completedSessions.filter(session => session.isOnTime).length + (isOnTime ? 1 : 0);
+    gameState.stats.onTimeRate = Math.round((onTimeSessions / totalCompletedSessions) * 100);
+    
+    // Add to completed sessions
+    gameState.completedSessions.push({
+        ...session,
+        isOnTime,
+        teacherPayment,
+        companyPayment,
+        rating,
+        returnedForMore: willReturn
+    });
+    
+    // Remove from active sessions
+    gameState.activeSessions.splice(sessionIndex, 1);
+    
+    // Update stats
+    gameState.stats.totalHours += session.student.hours;
+    
+    // Add notification based on rating and outcome
+    let ratingText = "";
+    if (rating >= 4) {
+        ratingText = `They gave a ${rating}-star review!`;
+    } else if (rating >= 3) {
+        ratingText = `They gave a ${rating}-star review.`;
+    } else {
+        ratingText = `Warning: They gave only a ${rating}-star review.`;
+    }
+    
+    let notificationMessage = `${teacher.name} completed tutoring ${studentName} in ${session.student.subject.name}${isOnTime ? " on time" : " late"}. Earned $${formatCurrency(companyPayment)}. ${ratingText}`;
+    if (fatiguePenaltyMessage) {
+        notificationMessage += ` ${fatiguePenaltyMessage}`;
+    }
+    
+    if (isOnTime) {
+        addNotification(notificationMessage, rating >= 4 ? "success" : (rating <= 2 ? "warning" : "info"));
+    } else {
+        addNotification(notificationMessage, "warning");
+    }
+    
+    // Update company reputation (outside fatigue penalty)
+    updateCompanyReputation();
+    
+    // Update UI
+    updateCompanyInfo();
+    updateActiveSessionsCount();
+    updateDashboardStats();
+    renderActiveSessionsList();
+    renderTeachersList();
+    renderStudentReviews();
+    
+    // If we were in an active marketing campaign, track the revenue
+    if (gameState.marketing.activeCampaign) {
+        gameState.marketing.totalRevenue += companyPayment;
+    }
+    
+    return {
+        session,
+        isOnTime,
+        teacherPayment,
+        companyPayment,
+        rating
+    };
+}
 
         // Calculate chance of student returning based on rating and previous visits
         function calculateReturnChance(rating, visits) {
@@ -2980,7 +3013,7 @@ function startMarketingCampaign(campaignType) {
                 recoveryRate *= (teacher.fatigueRecoveryRate || 1.0);
                 
                 // Calculate fatigue reduction
-                const fatigueReduction = Math.floor(recoveryRate * hoursSinceLastUpdate);
+                const fatigueReduction = (Math.floor(recoveryRate * hoursSinceLastUpdate)) * 0.2;
                 
                 if (fatigueReduction > 0 && teacher.fatigue > 0) {
                     const oldFatigue = teacher.fatigue;
@@ -5249,8 +5282,14 @@ function forceCompleteSession(sessionId) {
                                 <div>
                                     <div class="flex justify-between text-sm mb-1">
                                         <span>Fatigue</span>
-                                        <span class="${teacher.fatigue > 75 ? 'text-red-500' : (teacher.fatigue > 50 ? 'text-yellow-500' : 'text-green-500')}">${teacher.fatigue}%</span>
-                                    </div>
+                <span class="${teacher.fatigue > 70 ? 'text-red-500' : (teacher.fatigue > 40 ? 'text-yellow-500' : 'text-green-500')}">${teacher.fatigue}%</span>
+            </div>
+            <div class="w-full bg-gray-200 dark:bg-dark-600 rounded-full h-2">
+                <div class="bg-blue-500 h-2 rounded-full" style="width: ${teacher.fatigue}%"></div>
+            </div>
+            ${teacher.fatigue > 70 ? '<p class="text-red-500 text-xs mt-1">Exhausted: Reduced performance</p>' : 
+             teacher.fatigue > 40 ? '<p class="text-yellow-500 text-xs mt-1">Tired: Slightly reduced performance</p>' : ''}
+        </div>
                                     <div class="w-full bg-gray-200 dark:bg-dark-600 rounded-full h-2">
                                         <div class="bg-blue-500 h-2 rounded-full" style="width: ${teacher.fatigue}%"></div>
                                     </div>
