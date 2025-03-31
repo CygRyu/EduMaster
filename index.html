@@ -2302,11 +2302,11 @@ function moveStudentToActive(studentId, teacherId) {
         // Helper function to generate review comments
         function generateReviewComment(rating, subject) {
             const positiveComments = [
-    "Excellent tutoring in ${subject}. Really helped me understand the concepts.",
+    "Excellent tutoring! Really helped me understand the concepts.",
     "The tutor was very patient and explained ${subject} clearly.",
-    "My grades in ${subject} improved dramatically!",
-    "Professional and knowledgeable about ${subject}. Highly recommend!",
-    "Great teaching methods. Made ${subject} interesting and easy to understand.",
+    "Thanks. My grades in improved dramatically!",
+    "Professional and knowledgeable teacher. Highly recommend!",
+    "Great teaching methods. Made the lesson interesting and easy to understand.",
     "The tutor made complex topics feel approachable and fun to learn.",
     "I’ve gained so much confidence in my studies thanks to these sessions.",
     "Fantastic guidance—everything was broken down into simple steps.",
@@ -2314,15 +2314,28 @@ function moveStudentToActive(studentId, teacherId) {
     "Incredible support that turned my weaknesses into strengths.",
     "Lessons were engaging, and I looked forward to every session.",
     "The tutor’s expertise made a huge difference in my understanding.",
-    "Clear, patient, and inspiring—couldn’t ask for a better experience."
+    "Clear, patient, and inspiring—couldn’t ask for a better experience.",
+    "Shockingly good. I was expecting this to suck.",			// Rude-Positive / Bluntly Positive Comments:
+    "Actually knew their sh*t—unlike my last tutor.",
+    "My grades went up, so I guess you’re not a scam after all.",
+    "Didn’t waste my time, which is a damn miracle.",
+    "Explained things clearly, for once in my goddamn life.",
+    "Finally, a tutor who doesn’t make me want to fall asleep.",
+    "Legit helpful. Who would’ve thought?",
+    "Not gonna lie, you carried my sorry ass through this subject.",
+    "Way better than trying to learn this crap on my own.",
+    "Didn’t screw me over—10/10 would reluctantly recommend.",
+    "Taught me more in one session than my professor did all semester.",
+    "I didn’t hate it. In fact, it was kinda great.",
+    "You’re good at this. Don’t let it go to your head."
 ];
 
 const neutralComments = [
-    "Decent tutoring service for ${subject}.",
-    "Helped with my ${subject} homework, but could improve explanations.",
+    "Decent tutoring service.",
+    "Helped with my homework, but could improve explanations.",
     "Good teaching but sessions felt a bit rushed.",
-    "The tutor knows ${subject} well, but teaching style didn’t fully suit me.",
-    "Acceptable service. My understanding of ${subject} has improved somewhat.",
+    "The tutor knows the subject well, but teaching style didn’t fully suit me.",
+    "Acceptable service. My understanding of the subject has improved somewhat.",
     "The sessions were helpful, though sometimes lacked a bit of depth.",
     "Solid tutoring, but I’d prefer a slightly slower pace.",
     "The tutor was knowledgeable, yet the approach felt a little generic.",
@@ -2330,15 +2343,29 @@ const neutralComments = [
     "Decent effort from the tutor, though the sessions were hit-or-miss.",
     "The lessons were fine—just didn’t fully click with my learning style.",
     "Got through the material okay, but it felt a bit routine.",
-    "The tutor was competent, though I hoped for more personalized feedback."
+    "The tutor was competent, though I hoped for more personalized feedback.",
+    "Decent, I guess, but not worth the damn money.",
+    "Helped a little, but the tutor was kinda lazy and unenthusiastic.",
+    "Good at teaching, but holy hell, slow the f*** down.",
+    "Knew their stuff, but their teaching style was annoying as hell.",
+    "Meh. I learned something, but it was a slog.",
+    "Sessions were fine, but the tutor seemed bored out of their mind.",
+    "Solid, but not great. Felt like they were just going through the motions.",
+    "Knew the subject, but their explanations were half-assed.",
+    "Learned a few things, but overall, pretty underwhelming.",
+    "Decent effort, but honestly, some sessions were a waste of time.",
+    "Lessons were okay, but the tutor had zero personality.",
+    "Got through the material, but the tutor made it boring as sin.",
+    "Heh. Glad it's over.",
+    "Competent, but their feedback was useless and generic."
 ];
 
 const negativeComments = [
-    "Struggled to explain ${subject} concepts clearly.",
-    "Tutor was often distracted during our ${subject} sessions.",
-    "Didn’t see much improvement in my ${subject} grades.",
-    "Teaching methods for ${subject} were confusing.",
-    "Session felt disorganized. Not sure if I’ll return for ${subject} help.",
+    "Struggled to explain subject concepts clearly.",
+    "Tutor was often distracted during our sessions.",
+    "Didn’t see much improvement in my grades.",
+    "Teaching methods were confusing.",
+    "Session felt disorganized. Not sure if I’ll return anytime soon.",
     "The sessions lacked structure and left me more confused than before.",
     "Tutor seemed unprepared and didn’t address my questions well.",
     "I didn’t feel any real progress despite multiple lessons.",
@@ -2346,7 +2373,20 @@ const negativeComments = [
     "Disappointing experience—felt like my needs were overlooked.",
     "Tutor’s explanations were vague and hard to follow.",
     "The sessions were uninspiring and didn’t motivate me to improve.",
-    "Poor communication made the lessons frustrating and unproductive."
+    "Poor communication made the lessons frustrating and unproductive.",
+    "Couldn’t explain sh*t clearly if their life depended on it.",
+    "Tutor was constantly distracted—like, are you even getting paid for this?",
+    "My grades didn’t improve at all. Total waste of time and money.",
+    "Teaching methods were a complete mess. No idea what they were doing.",
+    "Sessions were a disorganized joke. Never using this service again.",
+    "Left me more confused than before. What the hell was the point?",
+    "Tutor was clearly unprepared. Amateur hour over here.",
+    "Zero progress after multiple lessons. Absolute garbage.",
+    "Rushed through everything like they had a train to catch. Useless.",
+    "Worst tutoring experience ever. Didn’t give a damn about my needs.",
+    "Explanations were so vague, I might as well have taught myself.",
+    "Boring, uninspiring, and a complete waste of my damn time.",
+    "Communication was terrible. Just a frustrating, pointless mess."
 ];
             
             if (rating >= 4) {
