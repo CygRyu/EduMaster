@@ -1444,30 +1444,6 @@
             notifications: []
         };
 
-        // Location data for student generation
-        const locations = [
-            { name: "Medan Kota", lat: 3.5896, lon: 98.6738 },
-            { name: "Medan Maimun", lat: 3.5766, lon: 98.6729 },
-            { name: "Medan Baru", lat: 3.5651, lon: 98.6500 },
-            { name: "Selayang", lat: 3.5554, lon: 98.6274 },
-            { name: "Johor", lat: 3.5303, lon: 98.6719 },
-            { name: "Petisah", lat: 3.5933, lon: 98.6567 },
-            { name: "Sunggal", lat: 3.5754, lon: 98.6277 },
-            { name: "Polonia", lat: 3.5791, lon: 98.6643 },
-            { name: "Amplas", lat: 3.5476, lon: 98.6925 },
-            { name: "Helvetia", lat: 3.6048, lon: 98.6321 },
-            { name: "Tuntungan", lat: 3.5278, lon: 98.6032 },
-            { name: "Medan Timur", lat: 3.5969, lon: 98.6872 },
-            { name: "Medan Barat", lat: 3.5937, lon: 98.6661 },
-            { name: "Medan Area", lat: 3.5881, lon: 98.6865 },
-            { name: "Deli", lat: 3.6376, lon: 98.6801 },
-            { name: "Tembung", lat: 3.6068, lon: 98.7054 },
-            { name: "Denai", lat: 3.5738, lon: 98.7060 },
-            { name: "Medan Labuhan", lat: 3.7324, lon: 98.6920 },
-            { name: "Belawan", lat: 3.7849, lon: 98.6833 },
-            { name: "Marelan", lat: 3.6915, lon: 98.6532 }
-        ];
-
         // Specialization areas for teacher generation
         const specializations = [
             { name: "Mathematics", pace: 4.1, efficiency: 4.2 },
@@ -1477,20 +1453,6 @@
             { name: "Computer Science", pace: 4.0, efficiency: 4.1 },
             { name: "Social Studies", pace: 4.2, efficiency: 4.3 },
             { name: "Arts", pace: 3.6, efficiency: 3.8 }
-        ];
-
-        // Subject types for student generation with pricing model
-        const subjects = [
-            { name: "Calculus", baseRate: 55, difficulty: 9, duration: 3 },
-            { name: "Algebra", baseRate: 45, difficulty: 6, duration: 2 },
-            { name: "Geometry", baseRate: 45, difficulty: 5, duration: 2 },
-            { name: "Physics", baseRate: 50, difficulty: 8, duration: 3 },
-            { name: "Chemistry", baseRate: 50, difficulty: 7, duration: 2.5 },
-            { name: "Biology", baseRate: 45, difficulty: 5, duration: 2 },
-            { name: "English Literature", baseRate: 40, difficulty: 5, duration: 2 },
-            { name: "Essay Writing", baseRate: 45, difficulty: 6, duration: 1.5 },
-            { name: "History", baseRate: 40, difficulty: 5, duration: 2 },
-            { name: "Programming", baseRate: 60, difficulty: 8, duration: 2.5 }
         ];
 
         // Schools for student generation
@@ -1810,41 +1772,162 @@
             return student;
         }
 
-        function generateStudents(count, maxReturning = 1) {
-            const returningCount = Math.min(maxReturning, gameState.returningStudents.length);
-            const newCount = count - returningCount;
-            
-            // Add returning students first
-            for (let i = 0; i < returningCount; i++) {
-                if (gameState.returningStudents.length > 0) {
-                    const returningStudentTemplate = gameState.returningStudents.shift();
-                    const student = generateRandomStudent(true);
-                    student.name = returningStudentTemplate.name;
-                    student.nickname = returningStudentTemplate.nickname || "";
-                    student.school = returningStudentTemplate.school;
-                    student.visits = returningStudentTemplate.visits;
-                    student.lastSessionRating = returningStudentTemplate.rating;
-                    gameState.availableStudents.push(student);
-                    gameState.stats.studentAcquisition++;
-                }
-            }
-            
-            // Add new students
-            for (let i = 0; i < newCount; i++) {
-                gameState.availableStudents.push(generateRandomStudent());
-                gameState.stats.studentAcquisition++;
-            }
-            
-            // Calculate retention rate
-            const totalStudents = gameState.completedSessions.length;
-            if (totalStudents > 0) {
-                const returningCount = gameState.completedSessions.filter(s => s.returnedForMore).length;
-                gameState.stats.retentionRate = Math.round((returningCount / totalStudents) * 100);
-            }
-            
-            updateStudentsCount();
-            renderStudentsList();
-        }
+function generateStudents(count, maxReturning = 1) {
+    const now = new Date();
+    const isWeekend = now.getDay() === 0 || now.getDay() === 6; // 0 = Sunday, 6 = Saturday
+    const returningCount = Math.min(maxReturning, gameState.returningStudents.length);
+    const newCount = count - returningCount;
+
+    // Your provided data
+    const locations = [
+        { name: "Medan Kota", lat: 3.5896, lon: 98.6738 },
+        { name: "Medan Maimun", lat: 3.5766, lon: 98.6729 },
+        { name: "Medan Baru", lat: 3.5651, lon: 98.6500 },
+        { name: "Selayang", lat: 3.5554, lon: 98.6274 },
+        { name: "Johor", lat: 3.5303, lon: 98.6719 },
+        { name: "Petisah", lat: 3.5933, lon: 98.6567 },
+        { name: "Sunggal", lat: 3.5754, lon: 98.6277 },
+        { name: "Polonia", lat: 3.5791, lon: 98.6643 },
+        { name: "Amplas", lat: 3.5476, lon: 98.6925 },
+        { name: "Helvetia", lat: 3.6048, lon: 98.6321 },
+        { name: "Tuntungan", lat: 3.5278, lon: 98.6032 },
+        { name: "Medan Timur", lat: 3.5969, lon: 98.6872 },
+        { name: "Medan Barat", lat: 3.5937, lon: 98.6661 },
+        { name: "Medan Area", lat: 3.5881, lon: 98.6865 },
+        { name: "Deli", lat: 3.6376, lon: 98.6801 },
+        { name: "Tembung", lat: 3.6068, lon: 98.7054 },
+        { name: "Denai", lat: 3.5738, lon: 98.7060 },
+        { name: "Medan Labuhan", lat: 3.7324, lon: 98.6920 },
+        { name: "Belawan", lat: 3.7849, lon: 98.6833 },
+        { name: "Marelan", lat: 3.6915, lon: 98.6532 }
+    ];
+
+const subjects = [
+    // Mathematics
+    { name: "Calculus", baseRate: 55, difficulty: 9, duration: 3, category: "Mathematics" },
+    { name: "Algebra", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
+    { name: "Geometry", baseRate: 45, difficulty: 5, duration: 2, category: "Mathematics" },
+    { name: "Statistics", baseRate: 50, difficulty: 7, duration: 2.5, category: "Mathematics" },
+    { name: "Trigonometry", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
+
+    // Science
+    { name: "Physics", baseRate: 50, difficulty: 8, duration: 3, category: "Science" },
+    { name: "Chemistry", baseRate: 50, difficulty: 7, duration: 2.5, category: "Science" },
+    { name: "Biology", baseRate: 45, difficulty: 5, duration: 2, category: "Science" },
+
+    // English
+    { name: "English Literature", baseRate: 40, difficulty: 5, duration: 2, category: "English" },
+    { name: "Essay Writing", baseRate: 45, difficulty: 6, duration: 1.5, category: "English" },
+    { name: "Grammar", baseRate: 40, difficulty: 4, duration: 1.5, category: "English" },
+    { name: "Creative Writing", baseRate: 45, difficulty: 6, duration: 2, category: "English" },
+
+    // Languages
+    { name: "Spanish", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
+    { name: "French", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
+    { name: "German", baseRate: 45, difficulty: 6, duration: 2, category: "Languages" },
+    { name: "Mandarin", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
+    { name: "Japanese", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
+
+    // Computer Science
+    { name: "Programming", baseRate: 60, difficulty: 8, duration: 2.5, category: "Computer Science" },
+    { name: "Web Development", baseRate: 55, difficulty: 7, duration: 2.5, category: "Computer Science" },
+    { name: "Data Structures", baseRate: 60, difficulty: 9, duration: 3, category: "Computer Science" },
+
+    // Social Studies
+    { name: "History", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
+    { name: "Geography", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
+    { name: "Economics", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
+    { name: "Political Science", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
+
+    // Arts
+    { name: "Music", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+    { name: "Art & Design", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+    { name: "Drama", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+    { name: "Photography", baseRate: 45, difficulty: 6, duration: 2, category: "Arts" }
+];
+
+    // Helper function to generate a random student
+    function generateRandomStudent(isReturning = false) {
+        const subject = subjects[Math.floor(Math.random() * subjects.length)];
+        const location = locations[Math.floor(Math.random() * locations.length)];
+        const isPriority = Math.random() < 0.2;
+        const isWeekendSession = isWeekend ? (Math.random() < 0.3) : false; // Only on weekends
+        const isSpecialNeeds = Math.random() < 0.15;
+
+        // Tuition calculation
+        let tuition = subject.baseRate * subject.duration;
+        if (isPriority) tuition *= 1.25;
+        if (isWeekendSession) tuition *= 1.35;
+        if (isSpecialNeeds) tuition *= 1.2;
+        // Add location-based bonus if applicable (assuming no bonus in your locations for now)
+
+        const deadline = new Date();
+        deadline.setHours(deadline.getHours() + Math.floor(Math.random() * 24) + 12); // 12-36 hours from now
+
+        return {
+            id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
+            name: `Student ${gameState.availableStudents.length + gameState.completedSessions.length + 1}`,
+            nickname: "",
+            school: `${location.name} High`,
+            subject: {
+                name: subject.name,
+                category: subject.category,
+                baseRate: subject.baseRate,
+                difficulty: subject.difficulty,
+                duration: subject.duration
+            },
+            location: {
+                name: location.name,
+                lat: location.lat,
+                lon: location.lon
+            },
+            hours: subject.duration, // Use subject duration as base hours
+            tuition: Math.round(tuition),
+            deadline,
+            isPriority,
+            isWeekendSession,
+            isSpecialNeeds,
+            visits: isReturning ? 1 : 0, // Default for new students
+            lastSessionRating: null // Default for new students
+        };
+    }
+
+    // Add returning students first
+    for (let i = 0; i < returningCount && gameState.returningStudents.length > 0; i++) {
+        const returningStudentTemplate = gameState.returningStudents.shift();
+        const student = generateRandomStudent(true);
+        student.name = returningStudentTemplate.name;
+        student.nickname = returningStudentTemplate.nickname || "";
+        student.school = returningStudentTemplate.school;
+        student.visits = (returningStudentTemplate.visits || 0) + 1; // Increment visits
+        student.lastSessionRating = returningStudentTemplate.rating || null;
+        gameState.availableStudents.push(student);
+        gameState.stats.studentAcquisition++;
+    }
+
+    // Add new students
+    for (let i = 0; i < newCount; i++) {
+        const student = generateRandomStudent();
+        gameState.availableStudents.push(student);
+        gameState.stats.studentAcquisition++;
+    }
+
+    // Calculate retention rate
+    const totalCompletedSessions = gameState.completedSessions.length;
+    if (totalCompletedSessions > 0) {
+        const returningCount = gameState.completedSessions.filter(s => s.returnedForMore).length;
+        gameState.stats.retentionRate = Math.round((returningCount / totalCompletedSessions) * 100);
+    } else {
+        gameState.stats.retentionRate = 0;
+    }
+
+    // Sort students by deadline
+    gameState.availableStudents.sort((a, b) => a.deadline - b.deadline);
+
+    // Update UI
+    updateStudentsCount();
+    renderStudentsList();
+}
 
         function generateApplicants(count) {
             // Calculate reputation bonus (0 to 1 point for reputation 4-5)
@@ -1860,103 +1943,114 @@
         }
 
         // Modified for performance impact from teacher loyalty
-        function moveStudentToActive(studentId, teacherId) {
-            const studentIndex = gameState.availableStudents.findIndex(student => student.id === studentId);
-            
-            if (studentIndex === -1) return null;
-            
-            const student = gameState.availableStudents[studentIndex];
-            const teacher = gameState.teachers.find(teacher => teacher.id === teacherId);
-            
-            if (!teacher) return null;
-            
-            // Calculate actual duration based on teacher's pace
-            const durationHours = student.hours / teacher.specialization.pace;
-            const startTime = new Date();
-            const estimatedEnd = new Date(startTime.getTime() + (durationHours * 60 * 60 * 1000));
-            
-            // Session performance modifiers
-            let performanceScore = 100;
-            if (student.isWeekendSession) {
-                performanceScore += (teacher.skills.onlineTeaching - 5) * 2;
-            }
-            if (student.isSpecialNeeds) {
-                performanceScore += (teacher.skills.specialNeeds - 5) * 2;
-            }
-            performanceScore += (teacher.skills.teachingEfficiency - 5) * 1.5;
-            
-            // Apply loyalty impact on performance
-            if (teacher.disengaged) {
-                performanceScore -= 20; // Major penalty for disengaged teachers
-            } else if (teacher.loyalty < 70) {
-                performanceScore -= (70 - teacher.loyalty) / 2; // Up to -20 for low loyalty
-            }
-            
-            // Apply subject mismatch penalty - new subject matching system
-            const teacherArea = teacher.specialization.area;
-            const studentSubject = student.subject.name;
-            const studentCategory = student.subject.category;
-            
-            let subjectMatchScore = 0;
-            
-            // Teacher's area exactly matches the subject category
-            if (teacherArea === studentCategory) {
-                subjectMatchScore = 10; // Perfect match
-            } 
-            // Check if the subject belongs to any category that appears in the teacher's area
-            else if (subjectCategories[teacherArea] && 
-                     subjectCategories[teacherArea].includes(studentSubject)) {
-                subjectMatchScore = 5; // Good match
-            }
-            // Apply subject mismatch penalty
-            else {
-                subjectMatchScore = -20; // Mismatch penalty
-            }
-            
-            performanceScore += subjectMatchScore * 2;
-            
-            // Cap performance score
-            performanceScore = Math.max(60, Math.min(performanceScore, 100));
-            
-            // Apply performance modifiers to end time (better performance means ending earlier)
-            const performanceFactor = performanceScore / 100;
-            const adjustedEnd = new Date(startTime.getTime() + (durationHours * 60 * 60 * 1000 * (2 - performanceFactor)));
-            
-            const activeSession = {
-                id: Date.now() + Math.floor(Math.random() * 1000),
-                student,
-                teacher: teacher.id,
-                startTime,
-                estimatedEnd,
-                adjustedEnd,
-                performanceScore,
-                subjectMatchScore,
-                status: 'in-progress'
-            };
-            
-            // Update teacher state
-            teacher.active = true;
-            teacher.available = false;
-            teacher.currentSession = activeSession.id;
-            teacher.fatigue += Math.ceil(durationHours / 2);
-            teacher.fatigue = Math.min(teacher.fatigue, 100);
-            teacher.lastFatigueUpdate = new Date(); // Reset fatigue recovery timer
-            teacher.lastSessionDate = new Date(); // Update for loyalty decay tracking
-            
-            // Remove from available students and add to active sessions
-            gameState.availableStudents.splice(studentIndex, 1);
-            gameState.activeSessions.push(activeSession);
-            
-            // Update UI
-            updateTeachersCount();
-            updateActiveSessionsCount();
-            updateStudentsCount();
-            
-            // Add notification
-            addNotification(`${teacher.name} assigned to tutor ${student.nickname || student.name} in ${student.subject.name}.`);
-            
-            return activeSession;
-        }
+function moveStudentToActive(studentId, teacherId) {
+    // Find student and teacher
+    const studentIndex = gameState.availableStudents.findIndex(student => student.id === studentId);
+    const teacher = gameState.teachers.find(t => t.id === teacherId);
+
+    // Early exit if student or teacher not found
+    if (studentIndex === -1 || !teacher) {
+        addNotification("Error: Student or teacher not found.", "error");
+        return null;
+    }
+
+    const student = gameState.availableStudents[studentIndex];
+    const now = new Date();
+    const isWeekend = now.getDay() === 0 || now.getDay() === 6; // 0 = Sunday, 6 = Saturday
+
+    // Prevent assigning weekend students on weekdays
+    if (student.isWeekendSession && !isWeekend) {
+        addNotification("Error: Weekend students can only be assigned on weekends.", "error");
+        return null;
+    }
+
+    // Calculate session duration based on teacher's pace
+    const durationHours = student.hours / teacher.specialization.pace;
+    const startTime = new Date();
+    const estimatedEnd = new Date(startTime.getTime() + (durationHours * 60 * 60 * 1000));
+
+    // Session performance modifiers
+    let performanceScore = 100;
+    if (student.isWeekendSession) {
+        performanceScore += (teacher.skills.onlineTeaching - 5) * 2; // Online teaching skill impact
+    }
+    if (student.isSpecialNeeds) {
+        performanceScore += (teacher.skills.specialNeeds - 5) * 2; // Special needs skill impact
+    }
+    performanceScore += (teacher.skills.teachingEfficiency - 5) * 1.5; // Teaching efficiency impact
+
+    // Apply loyalty impact on performance
+    if (teacher.disengaged) {
+        performanceScore -= 20; // Major penalty for disengaged teachers
+    } else if (teacher.loyalty < 70) {
+        performanceScore -= (70 - teacher.loyalty) / 2; // Up to -20 for low loyalty
+    }
+
+    // Subject matching logic
+    const teacherArea = teacher.specialization.area;
+    const studentSubject = student.subject.name;
+    const studentCategory = student.subject.category;
+
+    let subjectMatchScore = 0;
+    if (teacherArea === studentCategory) {
+        subjectMatchScore = 10; // Perfect match
+    } else if (subjectCategories[teacherArea]?.includes(studentSubject)) {
+        subjectMatchScore = 5; // Good match
+    } else {
+        subjectMatchScore = -20; // Mismatch penalty
+    }
+    performanceScore += subjectMatchScore * 2;
+
+    // Cap performance score between 60 and 100
+    performanceScore = Math.max(60, Math.min(performanceScore, 100));
+
+    // Adjust end time based on performance (higher score = faster completion)
+    const performanceFactor = performanceScore / 100;
+    const adjustedEnd = new Date(startTime.getTime() + (durationHours * 60 * 60 * 1000 * (2 - performanceFactor)));
+
+    // Create active session object
+    const activeSession = {
+        id: Date.now() + Math.floor(Math.random() * 1000),
+        student,
+        teacher: teacher.id,
+        startTime,
+        estimatedEnd,
+        adjustedEnd,
+        performanceScore,
+        subjectMatchScore,
+        status: 'in-progress'
+    };
+
+    // Update teacher state
+    teacher.active = true;
+    teacher.available = false;
+    teacher.currentSession = activeSession.id;
+    teacher.fatigue += Math.ceil(durationHours / 2);
+    teacher.fatigue = Math.min(teacher.fatigue, 100);
+    teacher.lastFatigueUpdate = new Date();
+    teacher.lastSessionDate = new Date();
+
+    // Move student from available to active sessions
+    gameState.availableStudents.splice(studentIndex, 1);
+    gameState.activeSessions.push(activeSession);
+
+    // Generate a new student to replace the assigned one, respecting day context
+    generateStudents(1);
+
+    // Update UI
+    updateTeachersCount();
+    updateActiveSessionsCount();
+    updateStudentsCount();
+    renderStudentsList();
+    renderActiveSessionsList();
+    renderActiveTeachersList();
+    renderTeachersList();
+
+    // Add notification
+    addNotification(`${teacher.name} assigned to tutor ${student.nickname || student.name} in ${student.subject.name}.`, "success");
+
+    return activeSession;
+}
 
         // Enhanced with student ratings and retention
         function completeSession(sessionId) {
@@ -3798,8 +3892,17 @@ function showSessionCompleteModal(details) {
         }
 
         function updateStudentsCount() {
-            document.getElementById("students-count").textContent = gameState.availableStudents.length;
-        }
+    const now = new Date();
+    const isWeekend = now.getDay() === 0 || now.getDay() === 6; // 0 = Sunday, 6 = Saturday
+
+    // Filter students based on current day
+    const visibleStudents = gameState.availableStudents.filter(student => 
+        isWeekend ? true : !student.isWeekendSession // Show all on weekends, only non-weekend on weekdays
+    );
+
+    const studentsCountElement = document.getElementById("students-count");
+    studentsCountElement.textContent = visibleStudents.length;
+}
 
         function updateActiveSessionsCount() {
             document.getElementById("active-count").textContent = gameState.activeSessions.length;
@@ -3926,146 +4029,148 @@ function showSessionCompleteModal(details) {
         }
 
         // Rendering functions
-        function renderStudentsList() {
-            const studentsListElement = document.getElementById("students-list");
-            const searchTerm = document.getElementById("students-search").value.toLowerCase();
-            const filterValue = document.getElementById("students-filter").value;
-            const sortValue = document.getElementById("students-sort").value;
-            
-// Filter students
-let filteredStudents = gameState.availableStudents.filter(student => {
-    const studentName = student.nickname || student.name;
-    const matchesSearch = 
-        studentName.toLowerCase().includes(searchTerm) ||
-        student.location.name.toLowerCase().includes(searchTerm) ||
-        student.subject.name.toLowerCase().includes(searchTerm) ||
-        student.school.toLowerCase().includes(searchTerm);
-    
-    if (!matchesSearch) return false;
-    
-    // If it's a weekend student, only show on weekends
-    if (student.isWeekendSession && !isWeekend()) return false;
-    
-    if (filterValue === 'priority' && !student.isPriority) return false;
-    if (filterValue === 'weekend' && !student.isWeekendSession) return false;
-    if (filterValue === 'special' && !student.isSpecialNeeds) return false;
-    if (filterValue === 'returning' && !student.isReturning) return false;
-    
-    return true;
-});
-            
-            // Sort students
-            if (sortValue === 'deadline') {
-                filteredStudents.sort((a, b) => a.deadline - b.deadline);
-            } else if (sortValue === 'payment') {
-                filteredStudents.sort((a, b) => b.tuition - a.tuition);
-            } else if (sortValue === 'duration') {
-                filteredStudents.sort((a, b) => b.hours - a.hours);
-            } else if (sortValue === 'visits') {
-                filteredStudents.sort((a, b) => b.visits - a.visits);
-            }
-            
-            // Clear the students list
-            studentsListElement.innerHTML = '';
-            
-            if (filteredStudents.length === 0) {
-                studentsListElement.innerHTML = `
-                    <div class="col-span-full text-gray-500 dark:text-gray-400 text-center py-16">
-                        <i class="fas fa-user-graduate text-5xl mb-3 opacity-30"></i>
-                        <p>No students available at the moment</p>
-                        <p class="text-sm mt-1">Check back later or adjust your filters</p>
-                    </div>
-                `;
-                return;
-            }
-            
-            // Render each student card
-            filteredStudents.forEach(student => {
-                const now = new Date();
-                const hoursToDeadline = (student.deadline - now) / (1000 * 60 * 60);
-                let deadlineClass = 'text-success';
-                
-                if (hoursToDeadline < 6) {
-                    deadlineClass = 'text-red-500';
-                } else if (hoursToDeadline < 12) {
-                    deadlineClass = 'text-yellow-500';
-                }
-                
-                // Display name (nickname or original)
-                const displayName = student.nickname ? `${student.nickname} (${student.name})` : student.name;
-                
-                // Show returning student badge if applicable
-                const returningBadge = student.visits > 0 ? 
-                    `<span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">Returning x${student.visits}</span>` : '';
-                
-                const studentCard = document.createElement('div');
-                studentCard.className = 'bg-gray-100 dark:bg-dark-700 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow';
-                studentCard.innerHTML = `
-                    <div class="flex justify-between items-start mb-2">
-                        <div>
-                            <h3 class="font-semibold">${student.subject.name} Tutoring</h3>
-                            <p class="text-gray-500 dark:text-gray-400 text-sm">Grade ${student.grade} - ${student.school}</p>
-                        </div>
-                        <div class="flex space-x-1">
-                            ${student.isPriority ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Priority</span>` : ''}
-                            ${student.isWeekendSession ? `<span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">Weekend</span>` : ''}
-                            ${student.isSpecialNeeds ? `<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full">Special Needs</span>` : ''}
-                        </div>
-                    </div>
-                    <div class="mb-3">
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-user text-primary w-5"></i>
-                            <span class="flex items-center">Student: ${displayName} ${returningBadge}</span>
-                            <button class="set-nickname-btn ml-2 text-xs text-primary hover:text-secondary" data-student-id="${student.id}" data-student-name="${student.name}">
-                                <i class="fas fa-edit"></i>
-                            </button>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-map-marker-alt text-red-500 w-5"></i>
-                            <span>Location: ${student.location.name}</span>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-book text-yellow-500 w-5"></i>
-                            <span>Subject: ${student.subject.name} (${student.subject.category})</span>
-                        </div>
-                        <div class="flex items-center mb-1">
-                            <i class="fas fa-hourglass-half text-blue-500 w-5"></i>
-                            <span>Academic hours: ${student.hours} ($${student.subject.baseRate}/hr base rate)</span>
-                        </div>
-                        <div class="flex items-center ${deadlineClass}">
-                            <i class="fas fa-clock w-5"></i>
-                            <span>Deadline: ${student.deadline.toLocaleString()}</span>
-                        </div>
-                    </div>
-                    <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-dark-600">
-                        <div class="text-xl font-bold">$${formatCurrency(student.tuition)}</div>
-                        <button class="assign-student-btn bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-lg text-sm" data-student-id="${student.id}">
-                            Assign Teacher
-                        </button>
-                    </div>
-                `;
-                
-                studentsListElement.appendChild(studentCard);
-            });
-            
-            // Add event listeners for assign buttons
-            document.querySelectorAll('.assign-student-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    const studentId = parseInt(e.target.getAttribute('data-student-id'));
-                    showAssignmentModal(studentId);
-                });
-            });
-            
-            // Add event listeners for nickname buttons
-            document.querySelectorAll('.set-nickname-btn').forEach(button => {
-                button.addEventListener('click', (e) => {
-                    e.stopPropagation();
-                    const studentId = parseInt(e.target.closest('.set-nickname-btn').getAttribute('data-student-id'));
-                    const studentName = e.target.closest('.set-nickname-btn').getAttribute('data-student-name');
-                    showStudentNicknameModal(studentId, studentName);
-                });
-            });
+function renderStudentsList() {
+    const studentsListElement = document.getElementById("students-list");
+    const searchTerm = document.getElementById("students-search")?.value.toLowerCase() || "";
+    const filterValue = document.getElementById("students-filter")?.value || "all";
+    const sortValue = document.getElementById("students-sort")?.value || "deadline";
+    const now = new Date();
+    const isWeekend = now.getDay() === 0 || now.getDay() === 6; // 0 = Sunday, 6 = Saturday
+
+    // Filter students
+    let filteredStudents = gameState.availableStudents.filter(student => {
+        const studentName = (student.nickname || student.name).toLowerCase();
+        const matchesSearch =
+            studentName.includes(searchTerm) ||
+            student.location.name.toLowerCase().includes(searchTerm) ||
+            student.subject.name.toLowerCase().includes(searchTerm) ||
+            student.school.toLowerCase().includes(searchTerm);
+
+        if (!matchesSearch) return false;
+
+        // Only show weekend students on weekends
+        if (student.isWeekendSession && !isWeekend) return false;
+
+        // Apply filters
+        switch (filterValue) {
+            case "priority": return student.isPriority;
+            case "weekend": return student.isWeekendSession;
+            case "special": return student.isSpecialNeeds;
+            case "returning": return student.visits > 0; // Use visits instead of isReturning
+            case "all": default: return true;
         }
+    });
+
+    // Sort students
+    filteredStudents.sort((a, b) => {
+        switch (sortValue) {
+            case "payment": return b.tuition - a.tuition;
+            case "duration": return b.hours - a.hours;
+            case "visits": return (b.visits || 0) - (a.visits || 0);
+            case "deadline": default: return a.deadline - b.deadline;
+        }
+    });
+
+    // Clear the students list
+    studentsListElement.innerHTML = "";
+
+    if (filteredStudents.length === 0) {
+        studentsListElement.innerHTML = `
+            <div class="col-span-full text-gray-500 dark:text-gray-400 text-center py-16">
+                <i class="fas fa-user-graduate text-5xl mb-3 opacity-30"></i>
+                <p>No students available at the moment</p>
+                <p class="text-sm mt-1">Check back later or adjust your filters</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Render each student card
+    filteredStudents.forEach(student => {
+        const hoursToDeadline = (student.deadline - now) / (1000 * 60 * 60);
+        let deadlineClass = "text-success";
+        if (hoursToDeadline < 6) deadlineClass = "text-red-500";
+        else if (hoursToDeadline < 12) deadlineClass = "text-yellow-500";
+
+        const displayName = student.nickname ? `${student.nickname} (${student.name})` : student.name;
+        const returningBadge = student.visits > 0
+            ? `<span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full ml-1">Returning x${student.visits}</span>`
+            : "";
+
+        const studentCard = document.createElement("div");
+        studentCard.className = "bg-gray-100 dark:bg-dark-700 rounded-xl p-4 shadow-sm hover:shadow-md transition-shadow";
+        studentCard.innerHTML = `
+            <div class="flex justify-between items-start mb-2">
+                <div>
+                    <h3 class="font-semibold">${student.subject.name} Tutoring</h3>
+                    <p class="text-gray-500 dark:text-gray-400 text-sm">${student.school}</p>
+                </div>
+                <div class="flex space-x-1">
+                    ${student.isPriority ? `<span class="bg-red-500 text-white text-xs px-2 py-0.5 rounded-full">Priority</span>` : ""}
+                    ${student.isWeekendSession ? `<span class="bg-blue-500 text-white text-xs px-2 py-0.5 rounded-full">Weekend</span>` : ""}
+                    ${student.isSpecialNeeds ? `<span class="bg-yellow-500 text-white text-xs px-2 py-0.5 rounded-full">Special Needs</span>` : ""}
+                </div>
+            </div>
+            <div class="mb-3 text-sm">
+                <div class="flex items-center mb-1">
+                    <i class="fas fa-user text-primary w-5"></i>
+                    <span class="flex items-center">${displayName} ${returningBadge}</span>
+                    <button class="set-nickname-btn ml-2 text-xs text-primary hover:text-secondary" data-student-id="${student.id}" data-student-name="${student.name}">
+                        <i class="fas fa-edit"></i>
+                    </button>
+                </div>
+                <div class="flex items-center mb-1">
+                    <i class="fas fa-map-marker-alt text-red-500 w-5"></i>
+                    <span>${student.location.name}</span>
+                </div>
+                <div class="flex items-center mb-1">
+                    <i class="fas fa-book text-yellow-500 w-5"></i>
+                    <span>${student.subject.name} (${student.subject.category})</span>
+                </div>
+                <div class="flex items-center mb-1">
+                    <i class="fas fa-hourglass-half text-blue-500 w-5"></i>
+                    <span>${student.hours} hours ($${student.subject.baseRate}/hr base rate)</span>
+                </div>
+                <div class="flex items-center ${deadlineClass}">
+                    <i class="fas fa-clock w-5"></i>
+                    <span>${student.deadline.toLocaleString()}</span>
+                </div>
+            </div>
+            <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-dark-600">
+                <div class="text-xl font-bold">$${formatCurrency(student.tuition)}</div>
+                <button class="assign-student-btn bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-lg text-sm" data-student-id="${student.id}">
+                    Assign Teacher
+                </button>
+            </div>
+        `;
+
+        studentsListElement.appendChild(studentCard);
+    });
+
+    // Add event listeners for assign buttons
+    document.querySelectorAll(".assign-student-btn").forEach(button => {
+        button.addEventListener("click", (e) => {
+            const studentId = parseInt(e.target.getAttribute("data-student-id"));
+            showAssignmentModal(studentId);
+        });
+    });
+
+    // Add event listeners for nickname buttons
+    document.querySelectorAll(".set-nickname-btn").forEach(button => {
+        button.addEventListener("click", (e) => {
+            e.stopPropagation();
+            const studentId = parseInt(button.getAttribute("data-student-id"));
+            const studentName = button.getAttribute("data-student-name");
+            showStudentNicknameModal(studentId, studentName);
+        });
+    });
+}
+
+// Helper function to check if it's a weekend (assumed to exist elsewhere, included here for clarity)
+function isWeekend() {
+    const now = new Date();
+    return now.getDay() === 0 || now.getDay() === 6; // Sunday or Saturday
+}
 
         function renderStudentReviews() {
             const reviewsListElement = document.getElementById("student-reviews-list");
@@ -5493,6 +5598,8 @@ let filteredStudents = gameState.availableStudents.filter(student => {
                 
                 // Check and remove expired students every minute
                 checkAndRemoveExpiredStudents();
+updateStudentsCount(); // Ensure count updates with day changes
+        renderStudentsList();  // Ensure list reflects current day
                 
             }, 10000);
             
@@ -5599,15 +5706,15 @@ let filteredStudents = gameState.availableStudents.filter(student => {
             
             // Teacher assignment modal
             document.getElementById('confirm-assignment').addEventListener('click', () => {
-                const btn = document.getElementById('confirm-assignment');
-                const studentId = parseInt(btn.dataset.studentId);
-                const teacherId = parseInt(btn.dataset.teacherId);
-                
-                if (studentId && teacherId) {
-                    moveStudentToActive(studentId, teacherId);
-                    document.getElementById('assignment-modal').classList.add('hidden');
-                }
-            });
+    const btn = document.getElementById('confirm-assignment');
+    const studentId = parseInt(btn.dataset.studentId);
+    const teacherId = parseInt(btn.dataset.teacherId);
+    
+    if (studentId && teacherId) {
+        moveStudentToActive(studentId, teacherId);
+        document.getElementById('assignment-modal').classList.add('hidden');
+    }
+});
             
             // Close modals
             const closeButtons = [
