@@ -1802,49 +1802,43 @@ function generateStudents(count, maxReturning = 1) {
         { name: "Marelan", lat: 3.6915, lon: 98.6532 }
     ];
 
-const subjects = [
-    // Mathematics
-    { name: "Calculus", baseRate: 55, difficulty: 9, duration: 3, category: "Mathematics" },
-    { name: "Algebra", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
-    { name: "Geometry", baseRate: 45, difficulty: 5, duration: 2, category: "Mathematics" },
-    { name: "Statistics", baseRate: 50, difficulty: 7, duration: 2.5, category: "Mathematics" },
-    { name: "Trigonometry", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
-
-    // Science
-    { name: "Physics", baseRate: 50, difficulty: 8, duration: 3, category: "Science" },
-    { name: "Chemistry", baseRate: 50, difficulty: 7, duration: 2.5, category: "Science" },
-    { name: "Biology", baseRate: 45, difficulty: 5, duration: 2, category: "Science" },
-
-    // English
-    { name: "English Literature", baseRate: 40, difficulty: 5, duration: 2, category: "English" },
-    { name: "Essay Writing", baseRate: 45, difficulty: 6, duration: 1.5, category: "English" },
-    { name: "Grammar", baseRate: 40, difficulty: 4, duration: 1.5, category: "English" },
-    { name: "Creative Writing", baseRate: 45, difficulty: 6, duration: 2, category: "English" },
-
-    // Languages
-    { name: "Spanish", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
-    { name: "French", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
-    { name: "German", baseRate: 45, difficulty: 6, duration: 2, category: "Languages" },
-    { name: "Mandarin", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
-    { name: "Japanese", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
-
-    // Computer Science
-    { name: "Programming", baseRate: 60, difficulty: 8, duration: 2.5, category: "Computer Science" },
-    { name: "Web Development", baseRate: 55, difficulty: 7, duration: 2.5, category: "Computer Science" },
-    { name: "Data Structures", baseRate: 60, difficulty: 9, duration: 3, category: "Computer Science" },
-
-    // Social Studies
-    { name: "History", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
-    { name: "Geography", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
-    { name: "Economics", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
-    { name: "Political Science", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
-
-    // Arts
-    { name: "Music", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
-    { name: "Art & Design", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
-    { name: "Drama", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
-    { name: "Photography", baseRate: 45, difficulty: 6, duration: 2, category: "Arts" }
-];
+    const subjects = [
+        // Mathematics
+        { name: "Calculus", baseRate: 55, difficulty: 9, duration: 3, category: "Mathematics" },
+        { name: "Algebra", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
+        { name: "Geometry", baseRate: 45, difficulty: 5, duration: 2, category: "Mathematics" },
+        { name: "Statistics", baseRate: 50, difficulty: 7, duration: 2.5, category: "Mathematics" },
+        { name: "Trigonometry", baseRate: 45, difficulty: 6, duration: 2, category: "Mathematics" },
+        // Science
+        { name: "Physics", baseRate: 50, difficulty: 8, duration: 3, category: "Science" },
+        { name: "Chemistry", baseRate: 50, difficulty: 7, duration: 2.5, category: "Science" },
+        { name: "Biology", baseRate: 45, difficulty: 5, duration: 2, category: "Science" },
+        // English
+        { name: "English Literature", baseRate: 40, difficulty: 5, duration: 2, category: "English" },
+        { name: "Essay Writing", baseRate: 45, difficulty: 6, duration: 1.5, category: "English" },
+        { name: "Grammar", baseRate: 40, difficulty: 4, duration: 1.5, category: "English" },
+        { name: "Creative Writing", baseRate: 45, difficulty: 6, duration: 2, category: "English" },
+        // Languages
+        { name: "Spanish", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
+        { name: "French", baseRate: 45, difficulty: 5, duration: 2, category: "Languages" },
+        { name: "German", baseRate: 45, difficulty: 6, duration: 2, category: "Languages" },
+        { name: "Mandarin", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
+        { name: "Japanese", baseRate: 50, difficulty: 8, duration: 2.5, category: "Languages" },
+        // Computer Science
+        { name: "Programming", baseRate: 60, difficulty: 8, duration: 2.5, category: "Computer Science" },
+        { name: "Web Development", baseRate: 55, difficulty: 7, duration: 2.5, category: "Computer Science" },
+        { name: "Data Structures", baseRate: 60, difficulty: 9, duration: 3, category: "Computer Science" },
+        // Social Studies
+        { name: "History", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
+        { name: "Geography", baseRate: 40, difficulty: 5, duration: 2, category: "Social Studies" },
+        { name: "Economics", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
+        { name: "Political Science", baseRate: 45, difficulty: 6, duration: 2, category: "Social Studies" },
+        // Arts
+        { name: "Music", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+        { name: "Art & Design", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+        { name: "Drama", baseRate: 40, difficulty: 5, duration: 2, category: "Arts" },
+        { name: "Photography", baseRate: 45, difficulty: 6, duration: 2, category: "Arts" }
+    ];
 
     // Helper function to generate a random student
     function generateRandomStudent(isReturning = false) {
@@ -1855,18 +1849,32 @@ const subjects = [
         const isSpecialNeeds = Math.random() < 0.15;
 
         // Tuition calculation
-        let tuition = subject.baseRate * subject.duration;
+        let tuition = subject.baseRate * subject.duration * 2.5;
         if (isPriority) tuition *= 1.25;
         if (isWeekendSession) tuition *= 1.35;
         if (isSpecialNeeds) tuition *= 1.2;
-        // Add location-based bonus if applicable (assuming no bonus in your locations for now)
 
+        // Define working hours (8 AM to 9 PM)
+        const startHour = 8;  // 8 AM
+        const endHour = 21;   // 9 PM
+
+        // Calculate deadline within 1-7 days, capped at 9 PM
         const deadline = new Date();
-        deadline.setHours(deadline.getHours() + Math.floor(Math.random() * 24) + 12); // 12-36 hours from now
+        const daysAhead = Math.floor(Math.random() * 7) + 1; // 1-7 days from now
+        deadline.setDate(deadline.getDate() + daysAhead);
+
+        // Set deadline to a random hour between 8 AM and 9 PM
+        const randomHour = Math.floor(Math.random() * (endHour - startHour + 1)) + startHour; // 8-21 inclusive
+        deadline.setHours(randomHour, 0, 0, 0);
+
+        // Ensure it doesn’t exceed 9 PM
+        if (deadline.getHours() > endHour) {
+            deadline.setHours(endHour, 0, 0, 0);
+        }
 
         return {
             id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
-            name: generateRandomName(),
+            name: generateRandomName(), // Assuming this function exists
             nickname: "",
             school: `${location.name} High`,
             subject: {
@@ -1926,6 +1934,18 @@ const subjects = [
 
     // Update UI
     updateStudentsCount();
+    renderStudentsList();
+}
+
+function adjustExistingStudentDeadlines() {
+    const endHour = 21; // 9 PM
+    gameState.availableStudents.forEach(student => {
+        const deadline = new Date(student.deadline);
+        if (deadline.getHours() > endHour) {
+            deadline.setHours(endHour, 0, 0, 0);
+            student.deadline = deadline;
+        }
+    });
     renderStudentsList();
 }
 
@@ -2721,7 +2741,7 @@ function moveStudentToActive(studentId, teacherId) {
         }
 
         // Start a marketing campaign
-        function startMarketingCampaign(campaignType) {
+function startMarketingCampaign(campaignType) {
     // Check if marketing is unlocked
     if (!gameState.marketing.unlocked) {
         addNotification(`Marketing campaigns are not unlocked yet.`, "error");
@@ -5616,6 +5636,8 @@ if (expiredStudents.length >= 1) {
             // Load saved game if available
             loadSavedGame();
             
+	    adjustExistingStudentDeadlines();
+
             // Generate initial students and applicants
             if (gameState.availableStudents.length === 0) {
                 generateStudents(5);
