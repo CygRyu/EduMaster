@@ -2269,28 +2269,52 @@ function moveStudentToActive(studentId, teacherId) {
         // Helper function to generate review comments
         function generateReviewComment(rating, subject) {
             const positiveComments = [
-                `Excellent tutoring in ${subject}. Really helped me understand the concepts.`,
-                `The tutor was very patient and explained ${subject} clearly.`,
-                `My grades in ${subject} improved dramatically!`,
-                `Professional and knowledgeable about ${subject}. Highly recommend!`,
-                `Great teaching methods. Made ${subject} interesting and easy to understand.`
-            ];
-            
-            const neutralComments = [
-                `Decent tutoring service for ${subject}.`,
-                `Helped with my ${subject} homework, but could improve explanations.`,
-                `Good teaching but sessions felt a bit rushed.`,
-                `The tutor knows ${subject} well, but teaching style didn't fully suit me.`,
-                `Acceptable service. My understanding of ${subject} has improved somewhat.`
-            ];
-            
-            const negativeComments = [
-                `Struggled to explain ${subject} concepts clearly.`,
-                `Tutor was often distracted during our ${subject} sessions.`,
-                `Didn't see much improvement in my ${subject} grades.`,
-                `Teaching methods for ${subject} were confusing.`,
-                `Session felt disorganized. Not sure if I'll return for ${subject} help.`
-            ];
+    "Excellent tutoring in ${subject}. Really helped me understand the concepts.",
+    "The tutor was very patient and explained ${subject} clearly.",
+    "My grades in ${subject} improved dramatically!",
+    "Professional and knowledgeable about ${subject}. Highly recommend!",
+    "Great teaching methods. Made ${subject} interesting and easy to understand.",
+    "The tutor made complex topics feel approachable and fun to learn.",
+    "I’ve gained so much confidence in my studies thanks to these sessions.",
+    "Fantastic guidance—everything was broken down into simple steps.",
+    "The tutor’s enthusiasm really kept me motivated throughout our lessons.",
+    "Incredible support that turned my weaknesses into strengths.",
+    "Lessons were engaging, and I looked forward to every session.",
+    "The tutor’s expertise made a huge difference in my understanding.",
+    "Clear, patient, and inspiring—couldn’t ask for a better experience."
+];
+
+const neutralComments = [
+    "Decent tutoring service for ${subject}.",
+    "Helped with my ${subject} homework, but could improve explanations.",
+    "Good teaching but sessions felt a bit rushed.",
+    "The tutor knows ${subject} well, but teaching style didn’t fully suit me.",
+    "Acceptable service. My understanding of ${subject} has improved somewhat.",
+    "The sessions were helpful, though sometimes lacked a bit of depth.",
+    "Solid tutoring, but I’d prefer a slightly slower pace.",
+    "The tutor was knowledgeable, yet the approach felt a little generic.",
+    "I learned some useful tips, but the impact wasn’t as strong as expected.",
+    "Decent effort from the tutor, though the sessions were hit-or-miss.",
+    "The lessons were fine—just didn’t fully click with my learning style.",
+    "Got through the material okay, but it felt a bit routine.",
+    "The tutor was competent, though I hoped for more personalized feedback."
+];
+
+const negativeComments = [
+    "Struggled to explain ${subject} concepts clearly.",
+    "Tutor was often distracted during our ${subject} sessions.",
+    "Didn’t see much improvement in my ${subject} grades.",
+    "Teaching methods for ${subject} were confusing.",
+    "Session felt disorganized. Not sure if I’ll return for ${subject} help.",
+    "The sessions lacked structure and left me more confused than before.",
+    "Tutor seemed unprepared and didn’t address my questions well.",
+    "I didn’t feel any real progress despite multiple lessons.",
+    "The teaching was too rushed, making it hard to keep up.",
+    "Disappointing experience—felt like my needs were overlooked.",
+    "Tutor’s explanations were vague and hard to follow.",
+    "The sessions were uninspiring and didn’t motivate me to improve.",
+    "Poor communication made the lessons frustrating and unproductive."
+];
             
             if (rating >= 4) {
                 return getRandomElement(positiveComments);
