@@ -1843,7 +1843,12 @@ function generateStudents(count, maxReturning = 1) {
     // Helper function to generate a random student
     function generateRandomStudent(isReturning = false) {
         const subject = subjects[Math.floor(Math.random() * subjects.length)];
-        const location = locations[Math.floor(Math.random() * locations.length)];
+        const location = getRandomElement(locations);
+            let studentLocation;
+            
+            do {
+                studentLocation = getRandomElement(locations);
+            } while (studentLocation.name === location.name);
         const isPriority = Math.random() < 0.2;
         const isWeekendSession = isWeekend ? (Math.random() < 0.3) : false; // Only on weekends
         const isSpecialNeeds = Math.random() < 0.15;
@@ -1876,7 +1881,7 @@ function generateStudents(count, maxReturning = 1) {
             id: Date.now() + Math.floor(Math.random() * 1000), // Unique ID
             name: generateRandomName(), // Assuming this function exists
             nickname: "",
-            school: `${location.name} High`,
+            school: getRandomElement(schools),
             subject: {
                 name: subject.name,
                 category: subject.category,
@@ -1884,11 +1889,7 @@ function generateStudents(count, maxReturning = 1) {
                 difficulty: subject.difficulty,
                 duration: subject.duration
             },
-            location: {
-                name: location.name,
-                lat: location.lat,
-                lon: location.lon
-            },
+            location: location,
             hours: subject.duration, // Use subject duration as base hours
             tuition: Math.round(tuition),
             deadline,
