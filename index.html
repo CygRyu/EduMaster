@@ -1109,7 +1109,7 @@
                             step="50"
                         />
                     </div>
-                    <p class="text-xs text-gray-500 mt-1">Plus 30% commission on all sessions</p>
+                    <p class="text-xs text-gray-500 mt-1">Plus 20% commission on all sessions</p>
                 </div>
                 <div id="salary-impact" class="mb-4 p-3 bg-blue-50 dark:bg-blue-900/20 rounded-lg text-sm hidden">
                     <!-- Salary impact will be shown here -->
@@ -2098,8 +2098,8 @@ function moveStudentToActive(studentId, teacherId) {
     const baseHourlyRate = 30; // Base hourly rate for teachers
     const hours = session.student.hours;
     
-    // Teacher gets base hourly rate plus 30% commission on the tuition
-    let teacherPayment = (baseHourlyRate * hours) + (tuition * 0.3);
+    // Teacher gets base hourly rate plus 20% commission on the tuition
+    let teacherPayment = (baseHourlyRate * hours) + (tuition * 0.2);
     // Company keeps the rest
     let companyPayment = tuition - teacherPayment;
     
@@ -4562,7 +4562,7 @@ function isWeekend() {
                     <div class="mt-3 flex items-center justify-between">
                         <div>
                             <span class="font-semibold">$${formatCurrency(teacher.salary)}</span>
-                            <span class="text-xs text-gray-500">/week base + 30% commission</span>
+                            <span class="text-xs text-gray-500">/week base + 20% commission</span>
                         </div>
                         <div class="text-sm text-gray-500 dark:text-gray-400">
                             <span class="text-xs bg-gray-200 dark:bg-dark-600 rounded px-2 py-0.5">
@@ -4672,7 +4672,7 @@ function isWeekend() {
                     <div class="flex justify-between items-center pt-2 border-t border-gray-200 dark:border-dark-600">
                         <div>
                             <span class="text-lg font-bold">$${formatCurrency(applicant.salary)}</span>
-                            <span class="text-xs text-gray-500">/week + 30% commission</span>
+                            <span class="text-xs text-gray-500">/week + 20% commission</span>
                         </div>
                         <button class="hire-teacher-btn bg-primary hover:bg-secondary text-white px-3 py-1.5 rounded-lg text-sm" data-applicant-id="${applicant.id}">
                             Hire Teacher
@@ -5110,7 +5110,7 @@ function forceCompleteSession(sessionId) {
                     
                     // Calculate expected earnings based on our payment model
                     const baseHourlyRate = 30; // Base hourly rate
-                    const commission = student.tuition * 0.3; // 30% commission
+                    const commission = student.tuition * 0.2; // 20% commission
                     const expectedEarnings = (baseHourlyRate * student.hours) + commission;
                     
                     // Update compatibility description based on revised matching
